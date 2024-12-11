@@ -13,17 +13,27 @@ def extract_text_from_html(file_path, output_path):
         # Проналажење <div> елемента са ID-јем 'textBody'
         text_body = soup.find('div', id='textBody')
 
-        if text_body:
-            # Извлачење чистог текста
+        # Проналажење <h1> елемента за наслов књиге
+        book_title = soup.find('h1')
+
+        if text_body and book_title:
+            # Извлачење чистог текста из садржаја
             extracted_text = text_body.get_text(separator='\n').strip()
+
+            # Извлачење текста наслова
+            title_text = book_title.get_text().strip()
 
             # Чување текста у .txt датотеку
             with open(output_path, 'w', encoding='utf-8') as output_file:
+                # Додавање наслова на почетак датотеке
+                output_file.write(f"{title_text}\n\n")
                 output_file.write(extracted_text)
 
             return f"Текст је успешно извучен и сачуван у: {output_path}"
-        else:
+        elif not text_body:
             return f"Елемент са ID-јем 'textBody' није пронађен у датотеци {file_path}."
+        elif not book_title:
+            return f"<h1> елемент (наслов књиге) није пронађен у датотеци {file_path}."
 
     except Exception as e:
         return f"Дошло је до грешке са датотеком {file_path}: {e}"
